@@ -24,6 +24,7 @@ var (
 	commitFormat  = flag.String("format", "%h/%cI%n%s%n%n%b", "default format")
 
 	port           = flag.String("port", "http", "listen for non-tls connections on this port")
+	useTLS         = flag.Bool("use-tls", true, "listen for tls connections")
 	tlsPort        = flag.String("tls-port", "https", "listen for tls connections on this port")
 	disallowRobots = flag.Bool("disallow-robots", true, "essentially whether to disable crawlers")
 	randoFavicon   = flag.Bool("favicon", true, "use a random favicon")
@@ -66,16 +67,21 @@ func main() {
 		patterns[dir[slash+1:]+"/"] = http.FileServer(http.Dir(dir))
 	}
 	for pattern, handler := range patterns {
-		mux.Handle(pattern, with.Feedback(handler))
+		log.Println("registered pattern:", pattern)
+		mux.Handle(pattern, with.Stats(with.Feedback(handler)))
 	}
 
-	m := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(hosts...),
-		Cache:      autocert.DirCache("certs"),
+	if *useTLS {
+		m := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(hosts...),
+			Cache:      autocert.DirCache("certs"),
+		}
+		go http.ListenAndServe(":"+*port, m.HTTPHandler(with.Feedback(http.HandlerFunc(show))))
+		tlsServer := &http.Server{Handler: mux, Addr: ":" + *tlsPort, TLSConfig: m.TLSConfig()}
+		log.Fatal(tlsServer.ListenAndServeTLS("", ""))
+	} else {
+		httpServer := &http.Server{Handler: mux, Addr: ":" + *port}
+		log.Fatal(httpServer.ListenAndServe())
 	}
-
-	go http.ListenAndServe(":"+*port, m.HTTPHandler(with.Feedback(http.HandlerFunc(show))))
-	tlsServer := &http.Server{Handler: mux, Addr: ":" + *tlsPort, TLSConfig: m.TLSConfig()}
-	log.Fatal(tlsServer.ListenAndServeTLS("", ""))
 }
