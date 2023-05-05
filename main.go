@@ -63,7 +63,7 @@ func main() {
 			log.Printf("skipping asset dir `%s`: unusable final slash", dir)
 			continue
 		}
-		patterns[dir[slash+1:]] = http.FileServer(http.Dir(dir))
+		patterns[dir[slash+1:]+"/"] = http.FileServer(http.Dir(dir))
 	}
 	for pattern, handler := range patterns {
 		mux.Handle(pattern, with.Feedback(handler))
