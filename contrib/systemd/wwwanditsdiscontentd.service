@@ -1,0 +1,12 @@
+[Unit]
+Description=serve some content
+
+[Service]
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+StateDirectory=wwwanditsdiscontents
+WorkingDirectory=%S/wwwanditsdiscontents
+ExecStart=wwwanditsdiscontents			\
+	-repo /tmp/the-next-big-thing-blag	\
+	-auto-cert-host hot-blag.example	\
+	-auto-cert-host cool-assets.example	\
+	-asset-dir /var/cool-assets.example
