@@ -75,7 +75,7 @@ func main() {
 		Cache:      autocert.DirCache("certs"),
 	}
 
-	go http.ListenAndServe(":"+*port, m.HTTPHandler(with.Feedback(http.HandlerFunc(show))))
+	go http.ListenAndServe(":"+*port, m.HTTPHandler(mux))
 	tlsServer := &http.Server{Handler: mux, Addr: ":" + *tlsPort, TLSConfig: m.TLSConfig()}
 	log.Fatal(tlsServer.ListenAndServeTLS("", ""))
 }
