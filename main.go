@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"strings"
 
 	"atomgardner.com/wwwanditsdiscontents/git"
@@ -39,8 +38,7 @@ func init() {
 	flag.Var(&assets, "asset-dir", "path to a directory served by an http file server.")
 	flag.Parse()
 
-	err := exec.Command("git", "-C", *repo, "branch").Run()
-	if err != nil {
+	if err := git.CheckRepository(*repo); err != nil {
 		log.Printf("`%s` is not a git repo\n", *repo)
 		os.Exit(1)
 	}
