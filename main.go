@@ -25,6 +25,7 @@ var (
 
 	port           = flag.String("port", "http", "listen for non-tls connections on this port")
 	tlsPort        = flag.String("tls-port", "https", "listen for tls connections on this port")
+	noACME         = flag.Bool("no-acme", false, "disable ACME and don't run the TLS server")
 	disallowRobots = flag.Bool("disallow-robots", true, "essentially whether to disable crawlers")
 	randoFavicon   = flag.Bool("favicon", true, "use a random favicon")
 
@@ -67,6 +68,10 @@ func main() {
 	}
 	for pattern, handler := range patterns {
 		mux.Handle(pattern, with.Feedback(handler))
+	}
+
+	if *noACME {
+		log.Fatal(http.ListenAndServe(":"+*port, mux))
 	}
 
 	m := autocert.Manager{
