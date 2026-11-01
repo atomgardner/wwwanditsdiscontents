@@ -1,10 +1,10 @@
 module atomgardner.com/wwwanditsdiscontents
 
-go 1.23.4
+go 1.27.0
 
-require golang.org/x/crypto v0.31.0
+require golang.org/x/crypto v0.58.0
 
 require (
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 )
